@@ -1,11 +1,7 @@
-# CloudMasters TUI
-
-CloudMasters - One TUI To Rule Them All. Shop and Deploy VPS from command line, compare offers from AWS, Azure, Google Cloud, Hetzner and Vultr. 
-
 # CloudMasters
 
 <p align="center">
-  <img src="PATH_TO_YOUR_LOGO.png" alt="CloudMasters Logo" width="200">
+  <img src="logo.png" alt="CloudMasters Logo" width="200">
   <br>
   <b>One TUI to rule them all.</b>
   <br>
