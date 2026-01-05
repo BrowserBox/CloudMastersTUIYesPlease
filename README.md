@@ -1,7 +1,7 @@
 # CloudMasters
 
 <p align="center">
-  <img src="logo.png" alt="CloudMasters Logo" width="200">
+  <img src="logo.png" alt="CloudMasters Logo" width="220">
   <br>
   <b>One TUI to rule them all.</b>
   <br>
@@ -9,6 +9,9 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/BrowserBox/CloudMastersTUIYesPlease/releases/latest">
+    <img src="https://img.shields.io/github/v/release/BrowserBox/CloudMastersTUIYesPlease?style=for-the-badge&color=blue" alt="Latest Release">
+  </a>
   <a href="#download"><img src="https://img.shields.io/badge/macOS-PKG_Installer-white?logo=apple&style=for-the-badge" alt="macOS"></a>
   <a href="#download"><img src="https://img.shields.io/badge/Linux-Binary-white?logo=linux&style=for-the-badge" alt="Linux"></a>
   <a href="#download"><img src="https://img.shields.io/badge/Windows-Binary-white?logo=windows&style=for-the-badge" alt="Windows"></a>
@@ -16,17 +19,17 @@
 
 ---
 
-## What is this?
+## 🚀 What is this?
 
-**CloudMasters** is a Terminal User Interface (TUI) for developers who are tired of opening 5 different browser tabs just to find a server.
+**CloudMasters** is the ultimate Terminal User Interface (TUI) for developers who are tired of juggling 5 different browser tabs just to find a server.
 
-We unify the cloud market. Instead of navigating complex web portals, CloudMasters lets you **search 58,000+ offers** globally, find the cheapest compute (like a $0.001/hr instance in Mumbai), and provision it instantly—all from your keyboard.
+**We unify the cloud market.** Instead of navigating complex, slow web portals, CloudMasters lets you **search 58,000+ offers** globally, find the cheapest compute (like a $0.001/hr instance in Mumbai), and provision it instantly—all from your keyboard.
 
-**We currently support:** AWS, Azure, GCP, Hetzner, and Vultr.
+**Supported Providers:** AWS, Azure, GCP, Hetzner, and Vultr.
 
 ---
 
-## The Tour
+## 📸 The Tour
 
 ### 1. The Market: Find the Best Deal
 Stop guessing if Hetzner is cheaper than AWS for your specific RAM/CPU needs. CloudMasters indexes offers from all provider APIs and caches them locally (SQLite) for instant searching.
@@ -49,33 +52,42 @@ Your active servers appear here, normalized across all providers. A Hetzner box 
 ![Dashboard View](main-dash.png)
 
 *   **Unified Actions:** `(s)` SSH, `(p)` Power/Reboot, `(d)` Delete/Nuke.
-*   **Activity Log:** See that green text at the bottom? That is your **audit trail**. Every command CloudMasters runs on your behalf is logged to a daily gzipped file. You always know exactly what happened.
+*   **Audit Trail:** See that green text at the bottom? That is your **activity log**. Every command CloudMasters runs on your behalf is logged to a daily gzipped file locally. You always know exactly what happened.
 
 ---
 
-## How it Works (The Wrapper Architecture)
+## 🛠 Under the Hood (The Wrapper Architecture)
 
-CloudMasters is a **native Go binary** that acts as a secure wrapper around your existing vendor CLIs.
+CloudMasters is a **native Go binary** that acts as a secure, unified wrapper around your existing vendor CLIs.
 
-1.  **We translate intents:** You press `Enter` to rent a box.
-2.  **We build the command:** We construct the specific `aws ec2...` or `az vm create...` command.
-3.  **We execute & log:** We run the command using your local credentials and log the output to your local audit trail.
+1.  **Intent Translation:** You press `Enter` to rent a box.
+2.  **Command Construction:** We build the specific `aws ec2...` or `az vm create...` command.
+3.  **Execution & Logging:** We run the command using your local credentials and log the output to your local audit trail.
 
 **Safety First:**
-We are a "Shopping" tool, not a "Infrastructure-as-Code" replacement. We are optimized for spinning up resources safely. We don't want to accidentally delete your production database, so our delete commands are deliberate and focused only on the boxes you select.
+We are a "Shopping" tool, not a full "Infrastructure-as-Code" replacement. We are optimized for spinning up resources safely and quickly. Our delete commands are deliberate and focused only on the boxes you select in the UI.
 
-*Requirements: You must have the respective provider CLIs (aws-cli, az, gcloud, hcloud, vultr-cli) installed and authenticated on your machine.*
+### Prerequisites
+You must have the respective provider CLIs installed and authenticated on your machine to use them with CloudMasters:
+*   `aws` (AWS CLI)
+*   `az` (Azure CLI)
+*   `gcloud` (Google Cloud SDK)
+*   `hcloud` (Hetzner CLI)
+*   `vultr-cli` (Vultr CLI)
 
 ---
 
 <a id="download"></a>
 
-## Installation
+## 📥 Installation
+
+### Latest Version: **v2.1.2**
 
 ### macOS (Recommended)
 
-Download the `.pkg` installer from the **[Latest Release](https://github.com/YOUR_ORG/get-cloudmasters/releases)**.
-This installs to `/usr/local/bin/cloudmasters`.
+Download the `.pkg` installer from the latest release. This will verify the binary and install it to `/usr/local/bin/cloudmasters`.
+
+[**Download macOS Installer (v2.1.2)**](https://github.com/BrowserBox/CloudMastersTUIYesPlease/releases/download/v2.1.2/CloudMasters-2.1.2.pkg)
 
 **Pro Tip:** Add an alias to your `.zshrc` or `.bashrc`:
 ```bash
@@ -84,38 +96,45 @@ alias cm="cloudmasters"
 
 ### Linux & Windows
 
-Download the standalone binary for your architecture from the **[Releases Page](https://github.com/YOUR_ORG/get-cloudmasters/releases)**.
+Download the standalone binary for your architecture from the **[Releases Page](https://github.com/BrowserBox/CloudMastersTUIYesPlease/releases/latest)**.
 
+**Linux Example:**
 ```bash
-# Example for Linux
-chmod +x cloudmasters-linux-amd64
-sudo mv cloudmasters-linux-amd64 /usr/local/bin/cloudmasters
+# Download (Verify version number)
+wget https://github.com/BrowserBox/CloudMastersTUIYesPlease/releases/download/v2.1.2/cloudmasters_2.1.2_linux_amd64.tar.gz
+
+# Extract
+tar -xvf cloudmasters_2.1.2_linux_amd64.tar.gz
+
+# Move to path
+chmod +x cloudmasters
+sudo mv cloudmasters /usr/local/bin/cloudmasters
 ```
 
 ---
 
-## Pricing & Model
+## 💎 Pricing & Model
 
 **CloudMasters is paid software with a Free Trial.**
 
 We are building a sustainable tool where **you are the customer, not the product.**
 
-*   **The Trial:** Full access to shop and manage boxes (Get in app). 
-*   **The License:** https://license.dosaygo.com/cloudmasters-buy
+*   **The Trial:** Full access to shop and manage boxes.
+*   **The License:** [Purchase a License](https://license.dosaygo.com/cloudmasters-buy)
 
 ---
 
-## FAQ / Known Issues
+## ❓ FAQ / Known Issues
 
-*   **Spot vs On-Demand:** Currently, the Market view shows the *lowest possible price* for a machine type. This means you might be looking at Spot/Preemptible pricing. We are working on splitting these views in v1.1.
+*   **Spot vs On-Demand:** Currently, the Market view shows the *lowest possible price* for a machine type. This means you might be looking at Spot/Preemptible pricing. We are working on splitting these views.
 *   **Data Freshness:** We fetch fresh offer data in the background. If a price looks wrong, hit `r` to Refresh.
-*   **Bugs:** This is v1.0. Pricing APIs are messy. If you see something weird, let us know.
+*   **Bugs:** Cloud pricing APIs are messy. If you see something weird, let us know.
 
-## Feedback
+## 📬 Feedback
 
 Found a bug? Have a feature request?
 
 *   **Email:** `cloudmasters@browserbox.io`
-*   **Issue:** Open a ticket in this repo.
+*   **Issue:** [Open a ticket in this repo](https://github.com/BrowserBox/CloudMastersTUIYesPlease/issues)
 
 *Happy Shopping.*
