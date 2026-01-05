@@ -100,8 +100,8 @@ sudo mv cloudmasters-linux-amd64 /usr/local/bin/cloudmasters
 
 We are building a sustainable tool where **you are the customer, not the product.**
 
-*   **The Trial:** Full access to shop and manage boxes.
-*   **The License:** [Link to Purchase / Stripe / Etc]
+*   **The Trial:** Full access to shop and manage boxes (Get in app). 
+*   **The License:** https://license.dosaygo.com/cloudmasters-buy
 
 ---
 
