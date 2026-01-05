@@ -85,9 +85,10 @@ You must have the respective provider CLIs installed and authenticated on your m
 
 ### macOS (Recommended)
 
-Download the `.pkg` installer from the latest release. This will verify the binary and install it to `/usr/local/bin/cloudmasters`.
+Download the `.pkg` installer for your architecture. This installs the binary to `/usr/local/bin/cloudmasters`.
 
-[**Download macOS Installer (v2.1.2)**](https://github.com/BrowserBox/CloudMastersTUIYesPlease/releases/download/v2.1.2/CloudMasters-2.1.2.pkg)
+*   [**Download for Apple Silicon (M1/M2/M3)**](https://github.com/BrowserBox/CloudMastersTUIYesPlease/releases/download/v2.1.2/cloudmasters_darwin_arm64.pkg)
+*   [**Download for Intel Macs**](https://github.com/BrowserBox/CloudMastersTUIYesPlease/releases/download/v2.1.2/cloudmasters_darwin_amd64.pkg)
 
 **Pro Tip:** Add an alias to your `.zshrc` or `.bashrc`:
 ```bash
@@ -96,19 +97,19 @@ alias cm="cloudmasters"
 
 ### Linux & Windows
 
-Download the standalone binary for your architecture from the **[Releases Page](https://github.com/BrowserBox/CloudMastersTUIYesPlease/releases/latest)**.
+Download the standalone binary for your architecture.
 
-**Linux Example:**
+*   [**Download for Linux (amd64)**](https://github.com/BrowserBox/CloudMastersTUIYesPlease/releases/download/v2.1.2/cloudmasters_linux_amd64)
+*   [**Download for Windows (amd64 .exe)**](https://github.com/BrowserBox/CloudMastersTUIYesPlease/releases/download/v2.1.2/cloudmasters_windows_amd64.exe)
+
+**Linux Installation Example:**
 ```bash
-# Download (Verify version number)
-wget https://github.com/BrowserBox/CloudMastersTUIYesPlease/releases/download/v2.1.2/cloudmasters_2.1.2_linux_amd64.tar.gz
-
-# Extract
-tar -xvf cloudmasters_2.1.2_linux_amd64.tar.gz
+# Download
+wget https://github.com/BrowserBox/CloudMastersTUIYesPlease/releases/download/v2.1.2/cloudmasters_linux_amd64
 
 # Move to path
-chmod +x cloudmasters
-sudo mv cloudmasters /usr/local/bin/cloudmasters
+chmod +x cloudmasters_linux_amd64
+sudo mv cloudmasters_linux_amd64 /usr/local/bin/cloudmasters
 ```
 
 ---
