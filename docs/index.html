@@ -6,12 +6,12 @@
     <title>CloudMasters - The Universal Cloud Terminal</title>
     <meta name="description" content="A powerful TUI for managing Azure, GCP, AWS, Hetzner, and Vultr servers from a single terminal interface.">
     <link rel="icon" type="image/png" href="assets/images/logo.png">
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    
+
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -103,7 +103,7 @@
 
         /* Hero */
         .hero {
-            padding: 6rem 0;
+            padding: 6rem 0 4rem;
             text-align: center;
         }
 
@@ -120,8 +120,15 @@
         .subtitle {
             font-size: 1.25rem;
             color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto 2.5rem;
+            max-width: 640px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .subnote {
+            font-size: 1rem;
+            color: var(--success);
+            font-weight: 600;
+            margin-bottom: 2rem;
         }
 
         .cta-buttons {
@@ -205,7 +212,7 @@
             gap: 1rem;
             font-family: 'JetBrains Mono', monospace;
             color: var(--text-primary);
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
 
         .copy-btn {
@@ -218,6 +225,58 @@
 
         .copy-btn:hover {
             color: var(--accent);
+        }
+
+        /* Install Options */
+        .install-section {
+            padding: 4rem 0 6rem;
+        }
+
+        .install-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+        }
+
+        .install-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: left;
+        }
+
+        .install-card h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .install-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .install-code {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            background: var(--code-bg);
+            color: var(--text-primary);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .inline-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .inline-link:hover {
+            color: var(--accent-hover);
         }
 
         /* Features */
@@ -255,6 +314,34 @@
             color: var(--text-secondary);
         }
 
+        /* Trust */
+        .trust {
+            padding: 6rem 0;
+        }
+
+        .trust-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2rem;
+            margin-top: 2.5rem;
+        }
+
+        .trust-card {
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.75rem;
+            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+        }
+
+        .trust-card h3 {
+            margin-bottom: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        .trust-card p {
+            color: var(--text-secondary);
+        }
+
         /* Footer */
         footer {
             padding: 3rem 0;
@@ -263,9 +350,28 @@
             color: var(--text-secondary);
         }
 
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
         @media (max-width: 768px) {
             h1 { font-size: 2.5rem; }
             .nav-links { display: none; }
+            .cta-buttons { flex-direction: column; }
+            .install-code { white-space: normal; }
         }
     </style>
 </head>
@@ -279,6 +385,7 @@
             <div class="nav-links">
                 <a href="#features">Features</a>
                 <a href="#install">Install</a>
+                <a href="#trust">Trust</a>
                 <a href="https://github.com/BrowserBox/CloudMasters-Marketplace">GitHub</a>
             </div>
         </div>
@@ -288,7 +395,8 @@
         <div class="container">
             <h1>The Universal<br>Cloud Terminal</h1>
             <p class="subtitle">Manage Azure, GCP, AWS, Hetzner, and Vultr servers from a single, blazing-fast TUI. Rent, manage, and SSH in seconds.</p>
-            
+            <p class="subnote">Shareware-era simple: distribute, trial, license, own.</p>
+
             <div class="install-box">
                 <span>curl -fsSL https://cloudmasters.browserbox.io/install.sh | bash</span>
                 <button class="copy-btn" onclick="navigator.clipboard.writeText('curl -fsSL https://cloudmasters.browserbox.io/install.sh | bash')" title="Copy to clipboard">
@@ -309,6 +417,35 @@
                 </div>
                 <div class="terminal-content">
                     <img src="assets/images/main-dash.png" alt="CloudMasters Dashboard">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="install" class="install-section">
+        <div class="container" style="text-align: center;">
+            <h2 style="font-size: 2.5rem;">Install your way</h2>
+            <p class="subtitle">macOS (.pkg), Windows (.exe), Linux (.tar.gz), or the curl/bash installer.</p>
+            <div class="install-grid">
+                <div class="install-card">
+                    <h3>macOS Package</h3>
+                    <p>Signed .pkg installer for quick setup and clean updates.</p>
+                    <a class="inline-link" href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest">Download latest</a>
+                </div>
+                <div class="install-card">
+                    <h3>Windows Installer</h3>
+                    <p>Use the GUI installer or PowerShell to bootstrap fast.</p>
+                    <div class="install-code">irm https://cloudmasters.browserbox.io/install.ps1 | iex</div>
+                </div>
+                <div class="install-card">
+                    <h3>Linux Tarball</h3>
+                    <p>Grab the latest build for your distro and drop it in your PATH.</p>
+                    <a class="inline-link" href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest">Get Linux build</a>
+                </div>
+                <div class="install-card">
+                    <h3>curl / bash</h3>
+                    <p>One-liner installer for quick starts and headless boxes.</p>
+                    <div class="install-code">curl -fsSL https://cloudmasters.browserbox.io/install.sh | bash</div>
                 </div>
             </div>
         </div>
@@ -336,7 +473,7 @@
                 <div class="feature-card">
                     <span class="feature-icon">🔐</span>
                     <h3>Secure & Local</h3>
-                    <p>Zero telemetry. Your credentials stay on your machine. Direct SSH access with automatic key management.</p>
+                    <p>Zero telemetry by default. Your credentials stay on your machine. Direct SSH access with automatic key management.</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">🌍</span>
@@ -352,17 +489,43 @@
         </div>
     </section>
 
+    <section id="trust" class="trust">
+        <div class="container" style="text-align: center;">
+            <h2 style="font-size: 2.5rem;">Trust without the fine print anxiety</h2>
+            <p class="subtitle">We built CloudMasters for people who have been burned by surveillance software. Your data and IP are yours, forever.</p>
+            <div class="trust-grid">
+                <div class="trust-card">
+                    <h3>Your cloud data stays yours</h3>
+                    <p>We never claim ownership of your infrastructure, configs, or code. What you build stays yours, period.</p>
+                </div>
+                <div class="trust-card">
+                    <h3>No credential exfiltration</h3>
+                    <p>CloudMasters sits on top of official CLIs. We don’t receive or store your cloud credentials.</p>
+                </div>
+                <div class="trust-card">
+                    <h3>Audit-friendly activity logs</h3>
+                    <p>Activity logs are designed for security and support, not surveillance. They avoid secrets and focus on timestamps and actions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section style="padding: 6rem 0; text-align: center;">
         <div class="container">
             <h2>Ready to take control?</h2>
-            <p class="subtitle" style="margin-top: 1rem;">Open source, free, and built for developers.</p>
-            <a href="https://github.com/BrowserBox/CloudMasters-Marketplace" class="btn btn-primary">Star on GitHub</a>
+            <p class="subtitle" style="margin-top: 1rem;">Try it free, license when it pays for itself, and keep your workflows forever.</p>
+            <a href="https://github.com/BrowserBox/CloudMasters-Marketplace" class="btn btn-primary">Follow the release feed</a>
         </div>
     </section>
 
     <footer>
         <div class="container">
-            <p>&copy; 2026 BrowserBox Inc. CloudMasters is open source software.</p>
+            <p>&copy; 2026 BrowserBox Inc. CloudMasters is commercial software with a shareware-style trial.</p>
+            <div class="footer-links">
+                <a href="terms.html">Terms</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest">Downloads</a>
+            </div>
         </div>
     </footer>
 </body>
