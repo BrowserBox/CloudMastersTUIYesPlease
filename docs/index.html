@@ -272,6 +272,26 @@
             max-width: 100%;
         }
 
+        .install-details {
+            margin-top: 2rem;
+            text-align: left;
+            border: 1px dashed var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            background-color: var(--bg-secondary);
+        }
+
+        .install-details summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .install-details p {
+            color: var(--text-secondary);
+            margin: 0.75rem 0 1rem;
+        }
+
         .inline-link {
             color: var(--accent);
             text-decoration: none;
@@ -343,6 +363,27 @@
 
         .trust-card p {
             color: var(--text-secondary);
+        }
+
+        .trust-details {
+            margin: 2.5rem auto 0;
+            max-width: 760px;
+            text-align: left;
+            border: 1px dashed var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            background-color: var(--bg-secondary);
+        }
+
+        .trust-details summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .trust-details p {
+            color: var(--text-secondary);
+            margin: 0.75rem 0 0;
         }
 
         /* Footer */
@@ -428,7 +469,7 @@
     <section id="install" class="install-section">
         <div class="container" style="text-align: center;">
             <h2 style="font-size: 2.5rem;">Install your way</h2>
-            <p class="subtitle">macOS (.pkg), Windows (.exe), Linux (.tar.gz), or the curl/bash installer.</p>
+            <p class="subtitle">Clean installers for every platform, plus optional one-line scripts.</p>
             <div class="install-grid">
                 <div class="install-card">
                     <h3>macOS Package</h3>
@@ -438,19 +479,21 @@
                 <div class="install-card">
                     <h3>Windows Installer</h3>
                     <p>Use the GUI installer or PowerShell to bootstrap fast.</p>
-                    <div class="install-code">irm https://cloudmasters.browserbox.io/install.ps1 | iex</div>
+                    <a class="inline-link" href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest">Download latest</a>
                 </div>
                 <div class="install-card">
                     <h3>Linux Tarball</h3>
                     <p>Grab the latest build for your distro and drop it in your PATH.</p>
                     <a class="inline-link" href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest">Get Linux build</a>
                 </div>
-                <div class="install-card">
-                    <h3>curl / bash</h3>
-                    <p>One-liner installer for quick starts and headless boxes.</p>
-                    <div class="install-code">curl -fsSL https://cloudmasters.browserbox.io/install.sh | bash</div>
-                </div>
             </div>
+            <details class="install-details">
+                <summary>Prefer the script installers?</summary>
+                <p>Use these for headless machines or quick automation.</p>
+                <div class="install-code">curl -fsSL https://cloudmasters.browserbox.io/install.sh | bash</div>
+                <div style="height: 0.75rem;"></div>
+                <div class="install-code">irm https://cloudmasters.browserbox.io/install.ps1 | iex</div>
+            </details>
         </div>
     </section>
 
@@ -510,6 +553,10 @@
                     <p>Activity logs are designed for security and support, not surveillance. They avoid secrets and focus on timestamps and actions.</p>
                 </div>
             </div>
+            <details class="trust-details">
+                <summary>Read the plain-English privacy commitments</summary>
+                <p>We do not sell data, do not train AI on customer data, and keep collection to the minimum required for licensing and support. See the full policy for specifics.</p>
+            </details>
         </div>
     </section>
 
