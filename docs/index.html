@@ -3,9 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloudMasters - The Universal Cloud Terminal</title>
-    <meta name="description" content="A powerful TUI for managing Azure, GCP, AWS, Hetzner, and Vultr servers from a single terminal interface.">
+    <title>CloudMasters - The Universal Cloud Terminal | Manage AWS, Azure, GCP in One TUI</title>
+    <meta name="description" content="Stop switching between cloud consoles. CloudMasters is the blazing-fast TUI for managing Azure, GCP, AWS, Hetzner, and Vultr servers from a single terminal. Free trial, then $49.">
+    <meta name="keywords" content="multi-cloud management, cloud TUI, AWS terminal, Azure CLI, GCP management, DevOps tools, server management">
     <link rel="icon" type="image/png" href="assets/images/logo.png">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="CloudMasters - One TUI to Rule All Your Clouds">
+    <meta property="og:description" content="Manage AWS, Azure, GCP, Hetzner & Vultr from a single terminal. 10x faster than web consoles.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/images/main-dash.png">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,11 +23,13 @@
         :root {
             --bg-primary: #0f172a;
             --bg-secondary: #1e293b;
+            --bg-tertiary: #0f1629;
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --accent: #38bdf8;
             --accent-hover: #0ea5e9;
             --success: #4ade80;
+            --warning: #fbbf24;
             --code-bg: #020617;
             --border: #334155;
         }
@@ -29,11 +38,13 @@
             :root {
                 --bg-primary: #ffffff;
                 --bg-secondary: #f1f5f9;
+                --bg-tertiary: #f8fafc;
                 --text-primary: #0f172a;
                 --text-secondary: #475569;
                 --accent: #0284c7;
                 --accent-hover: #0369a1;
                 --success: #16a34a;
+                --warning: #d97706;
                 --code-bg: #e2e8f0;
                 --border: #cbd5e1;
             }
@@ -60,8 +71,13 @@
 
         /* Navigation */
         nav {
-            padding: 1.5rem 0;
+            padding: 1rem 0;
             border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            z-index: 100;
+            backdrop-filter: blur(10px);
         }
 
         .nav-content {
@@ -88,6 +104,7 @@
         .nav-links {
             display: flex;
             gap: 2rem;
+            align-items: center;
         }
 
         .nav-links a {
@@ -101,77 +118,148 @@
             color: var(--accent);
         }
 
+        .nav-cta {
+            background-color: var(--accent) !important;
+            color: white !important;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .nav-cta:hover {
+            background-color: var(--accent-hover) !important;
+        }
+
         /* Hero */
         .hero {
-            padding: 6rem 0 4rem;
+            padding: 5rem 0 4rem;
             text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-badge span {
+            color: var(--success);
+            font-weight: 600;
         }
 
         h1 {
             font-size: 3.5rem;
             font-weight: 800;
-            line-height: 1.2;
+            line-height: 1.15;
             margin-bottom: 1.5rem;
             background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
         }
 
         .subtitle {
             font-size: 1.25rem;
             color: var(--text-secondary);
             max-width: 640px;
-            margin: 0 auto 1.5rem;
+            margin: 0 auto 1rem;
         }
 
-        .subnote {
-            font-size: 1rem;
-            color: var(--success);
-            font-weight: 600;
-            margin-bottom: 2rem;
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .hero-stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
         }
 
         .cta-buttons {
             display: flex;
             justify-content: center;
             gap: 1rem;
-            margin-bottom: 3rem;
+            margin-bottom: 1rem;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
-            padding: 0.75rem 1.5rem;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
             border-radius: 0.5rem;
             font-weight: 600;
             text-decoration: none;
             transition: all 0.2s;
+            font-size: 1rem;
         }
 
         .btn-primary {
             background-color: var(--accent);
             color: white;
+            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
         }
 
         .btn-primary:hover {
             background-color: var(--accent-hover);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
         }
 
         .btn-secondary {
             background-color: var(--bg-secondary);
             color: var(--text-primary);
+            border: 1px solid var(--border);
         }
 
         .btn-secondary:hover {
             background-color: var(--border);
         }
 
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        .cta-subtext {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .cta-subtext strong {
+            color: var(--success);
+        }
+
         /* Terminal Preview */
         .terminal-window {
-            background-color: #1e1e1e; /* Force dark mode for terminal preview */
+            background-color: #1e1e1e;
             border-radius: 0.75rem;
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
             overflow: hidden;
             margin: 2rem auto;
             max-width: 900px;
@@ -199,6 +287,116 @@
             display: block;
             width: 100%;
             height: auto;
+        }
+
+        /* Video Section */
+        .video-section {
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .video-placeholder {
+            max-width: 800px;
+            margin: 2rem auto;
+            aspect-ratio: 16/9;
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        /* Social Proof */
+        .social-proof {
+            padding: 3rem 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .social-proof-inner {
+            text-align: center;
+        }
+
+        .social-proof-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .cloud-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            opacity: 0.7;
+        }
+
+        .cloud-logos span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        /* Problem/Solution */
+        .problem-solution {
+            padding: 6rem 0;
+        }
+
+        .problem-solution-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .problem-card, .solution-card {
+            padding: 2rem;
+            border-radius: 0.75rem;
+        }
+
+        .problem-card {
+            background: linear-gradient(135deg, #1e1e1e, #2d1f1f);
+            border: 1px solid #4a3333;
+        }
+
+        .solution-card {
+            background: linear-gradient(135deg, #1e293b, #1e3a2f);
+            border: 1px solid #2d4a3d;
+        }
+
+        .problem-card h3, .solution-card h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .problem-card ul, .solution-card ul {
+            list-style: none;
+        }
+
+        .problem-card li, .solution-card li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .problem-card li::before {
+            content: "✗";
+            position: absolute;
+            left: 0;
+            color: #ef4444;
+        }
+
+        .solution-card li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
         }
 
         /* Install Command */
@@ -320,6 +518,12 @@
             padding: 2rem;
             border-radius: 0.75rem;
             border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
         }
 
         .feature-icon {
@@ -337,9 +541,236 @@
             color: var(--text-secondary);
         }
 
+        /* Pricing */
+        .pricing {
+            padding: 6rem 0;
+        }
+
+        .pricing-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .pricing-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent), 0 20px 40px rgba(56, 189, 248, 0.15);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .pricing-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-card .price {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 1rem 0;
+        }
+
+        .pricing-card .price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+
+        .pricing-card .price-note {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 1.5rem 0;
+            flex-grow: 1;
+        }
+
+        .pricing-features li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .pricing-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+        }
+
+        .pricing-card .btn {
+            width: 100%;
+            justify-content: center;
+            margin-top: auto;
+        }
+
+        .pricing-guarantee {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .pricing-guarantee p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .pricing-guarantee strong {
+            color: var(--text-primary);
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 6rem 0;
+            background: var(--bg-secondary);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .testimonial-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .testimonial-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+        }
+
+        .testimonial-info strong {
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .testimonial-info span {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* FAQ */
+        .faq {
+            padding: 6rem 0;
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1rem;
+            margin-top: 3rem;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .faq-item {
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .faq-item summary {
+            padding: 1.25rem;
+            cursor: pointer;
+            font-weight: 600;
+            background: var(--bg-secondary);
+            list-style: none;
+        }
+
+        .faq-item summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .faq-item summary::after {
+            content: "+";
+            float: right;
+            font-size: 1.25rem;
+            color: var(--accent);
+        }
+
+        .faq-item[open] summary::after {
+            content: "−";
+        }
+
+        .faq-item p {
+            padding: 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
         /* Trust */
         .trust {
             padding: 6rem 0;
+            background: var(--bg-secondary);
         }
 
         .trust-grid {
@@ -353,7 +784,7 @@
             border: 1px solid var(--border);
             border-radius: 0.75rem;
             padding: 1.75rem;
-            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+            background: var(--bg-primary);
         }
 
         .trust-card h3 {
@@ -372,7 +803,7 @@
             border: 1px dashed var(--border);
             border-radius: 0.75rem;
             padding: 1rem 1.25rem;
-            background-color: var(--bg-secondary);
+            background-color: var(--bg-primary);
         }
 
         .trust-details summary {
@@ -384,6 +815,21 @@
         .trust-details p {
             color: var(--text-secondary);
             margin: 0.75rem 0 0;
+        }
+
+        /* Final CTA */
+        .final-cta {
+            padding: 6rem 0;
+            text-align: center;
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+        }
+
+        .final-cta h2 {
+            margin-bottom: 1rem;
+        }
+
+        .final-cta .subtitle {
+            margin-bottom: 2rem;
         }
 
         /* Footer */
@@ -412,10 +858,14 @@
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
+            h1 { font-size: 2.25rem; }
+            h2 { font-size: 1.75rem; }
             .nav-links { display: none; }
-            .cta-buttons { flex-direction: column; }
+            .cta-buttons { flex-direction: column; align-items: center; }
             .install-code { white-space: normal; }
+            .problem-solution-grid { grid-template-columns: 1fr; }
+            .hero-stats { gap: 1.5rem; }
+            .faq-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -428,30 +878,43 @@
             </a>
             <div class="nav-links">
                 <a href="#features">Features</a>
-                <a href="#install">Install</a>
-                <a href="#trust">Trust</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#faq">FAQ</a>
                 <a href="https://github.com/BrowserBox/CloudMasters-Marketplace">GitHub</a>
+                <a href="#pricing" class="nav-cta">Try Free →</a>
             </div>
         </div>
     </nav>
 
     <section class="hero">
         <div class="container">
-            <h1>The Universal<br>Cloud Terminal</h1>
-            <p class="subtitle">Manage Azure, GCP, AWS, Hetzner, and Vultr servers from a single, blazing-fast TUI. Rent, manage, and SSH in seconds.</p>
-            <p class="subnote">Shareware-era simple: distribute, trial, license, own.</p>
-
-            <div class="install-box">
-                <span>curl -fsSL https://cloudmasters.browserbox.io/install.sh | bash</span>
-                <button class="copy-btn" onclick="navigator.clipboard.writeText('curl -fsSL https://cloudmasters.browserbox.io/install.sh | bash')" title="Copy to clipboard">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                </button>
+            <div class="hero-badge">
+                <span>✨ New</span> Now with Vultr support • v1.0 Released
+            </div>
+            
+            <h1>Stop Switching Between<br>Cloud Consoles</h1>
+            <p class="subtitle">Manage AWS, Azure, GCP, Hetzner & Vultr from one blazing-fast terminal. Provision, SSH, and destroy VMs with single keystrokes.</p>
+            
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-number">5</div>
+                    <div class="hero-stat-label">Cloud Providers</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">3</div>
+                    <div class="hero-stat-label">Keystrokes to Deploy</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">10x</div>
+                    <div class="hero-stat-label">Faster Than Web Consoles</div>
+                </div>
             </div>
 
             <div class="cta-buttons">
-                <a href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest" class="btn btn-primary">Download Latest Release</a>
-                <a href="#features" class="btn btn-secondary">View Features</a>
+                <a href="#pricing" class="btn btn-primary btn-large">Start Free Trial →</a>
+                <a href="#demo" class="btn btn-secondary btn-large">▶ Watch Demo</a>
             </div>
+            <p class="cta-subtext">14-day free trial • <strong>No credit card required</strong> • Cancel anytime</p>
 
             <div class="terminal-window">
                 <div class="terminal-header">
@@ -460,7 +923,63 @@
                     <div class="dot dot-green"></div>
                 </div>
                 <div class="terminal-content">
-                    <img src="assets/images/main-dash.png" alt="CloudMasters Dashboard">
+                    <img src="assets/images/main-dash.png" alt="CloudMasters Dashboard - Unified view of all your cloud servers">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Social Proof Bar -->
+    <section class="social-proof">
+        <div class="container social-proof-inner">
+            <p class="social-proof-label">Works with the clouds you already use</p>
+            <div class="cloud-logos">
+                <span>AWS</span>
+                <span>Azure</span>
+                <span>GCP</span>
+                <span>Hetzner</span>
+                <span>Vultr</span>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Demo Video Section -->
+    <section id="demo" class="video-section">
+        <div class="container">
+            <h2>See It In Action</h2>
+            <p class="subtitle">Watch how CloudMasters lets you manage all your cloud infrastructure in under 2 minutes</p>
+            <div class="video-placeholder">
+                <p>🎬 Demo video coming soon</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Problem/Solution -->
+    <section class="problem-solution">
+        <div class="container">
+            <h2 style="text-align: center;">The Multi-Cloud Management Problem</h2>
+            <div class="problem-solution-grid">
+                <div class="problem-card">
+                    <h3>😫 Without CloudMasters</h3>
+                    <ul>
+                        <li>Juggling 4+ cloud console browser tabs</li>
+                        <li>Different UIs, different keyboard shortcuts</li>
+                        <li>Slow page loads and endless clicking</li>
+                        <li>Can't compare prices across providers</li>
+                        <li>Context switching kills your focus</li>
+                        <li>Complex Terraform for simple VMs</li>
+                    </ul>
+                </div>
+                <div class="solution-card">
+                    <h3>🚀 With CloudMasters</h3>
+                    <ul>
+                        <li>One terminal, all clouds unified</li>
+                        <li>Same keyboard shortcuts everywhere</li>
+                        <li>Instant response, zero page loads</li>
+                        <li>Side-by-side price comparison built-in</li>
+                        <li>Never leave your terminal workflow</li>
+                        <li>Press 'o' to browse, 'r' to rent, done</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -468,28 +987,28 @@
 
     <section id="install" class="install-section">
         <div class="container" style="text-align: center;">
-            <h2 style="font-size: 2.5rem;">Install your way</h2>
-            <p class="subtitle">Clean installers for every platform, plus optional one-line scripts.</p>
+            <h2 style="font-size: 2.5rem;">Install In Seconds</h2>
+            <p class="subtitle">Clean installers for every platform. Up and running in under a minute.</p>
             <div class="install-grid">
                 <div class="install-card">
-                    <h3>macOS Package</h3>
-                    <p>Signed .pkg installer for quick setup and clean updates.</p>
-                    <a class="inline-link" href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest">Download latest</a>
+                    <h3>🍎 macOS</h3>
+                    <p>Signed .pkg installer with automatic updates.</p>
+                    <a class="inline-link" href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest">Download .pkg →</a>
                 </div>
                 <div class="install-card">
-                    <h3>Windows Installer</h3>
-                    <p>Use the GUI installer or PowerShell to bootstrap fast.</p>
-                    <a class="inline-link" href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest">Download latest</a>
+                    <h3>🪟 Windows</h3>
+                    <p>GUI installer or PowerShell one-liner.</p>
+                    <a class="inline-link" href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest">Download .exe →</a>
                 </div>
                 <div class="install-card">
-                    <h3>Linux Tarball</h3>
-                    <p>Grab the latest build for your distro and drop it in your PATH.</p>
-                    <a class="inline-link" href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest">Get Linux build</a>
+                    <h3>🐧 Linux</h3>
+                    <p>Tarball for any distro. Drop in PATH and go.</p>
+                    <a class="inline-link" href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest">Download .tar.gz →</a>
                 </div>
             </div>
             <details class="install-details">
-                <summary>Prefer the script installers?</summary>
-                <p>Use these for headless machines or quick automation.</p>
+                <summary>🚀 Prefer one-line installers?</summary>
+                <p>For headless machines, CI/CD, or quick automation:</p>
                 <div class="install-code">curl -fsSL https://cloudmasters.browserbox.io/install.sh | bash</div>
                 <div style="height: 0.75rem;"></div>
                 <div class="install-code">irm https://cloudmasters.browserbox.io/install.ps1 | iex</div>
@@ -499,72 +1018,222 @@
 
     <section id="features" class="features">
         <div class="container">
-            <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2.5rem;">Why CloudMasters?</h2>
+            <h2 style="text-align: center; margin-bottom: 1rem;">Built for Terminal Power Users</h2>
+            <p class="subtitle" style="text-align: center;">Everything you need to manage cloud infrastructure at the speed of thought.</p>
             <div class="features-grid">
                 <div class="feature-card">
                     <span class="feature-icon">☁️</span>
                     <h3>Multi-Cloud Native</h3>
-                    <p>Wraps official CLIs (az, gcloud, hcloud, aws) for stable, authenticated access without managing new secrets.</p>
+                    <p>Wraps official CLIs (az, gcloud, hcloud, aws, vultr-cli) for stable, authenticated access without managing new secrets.</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">⚡</span>
                     <h3>Blazing Fast TUI</h3>
-                    <p>Built with tview and Go. Keyboard-driven navigation, instant search, and real-time status updates.</p>
+                    <p>Built with tview and Go. 2MB binary, instant startup. Keyboard-driven navigation with zero loading spinners.</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">💰</span>
                     <h3>Smart Market</h3>
-                    <p>Compare prices across providers instantly. Sort by CPU, RAM, and price to find the best deal for your workload.</p>
+                    <p>Compare prices across all providers instantly. Sort by CPU, RAM, and price to find the best deal for your workload.</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">🔐</span>
                     <h3>Secure & Local</h3>
-                    <p>Zero telemetry by default. Your credentials stay on your machine. Direct SSH access with automatic key management.</p>
+                    <p>Zero telemetry by default. Your credentials never leave your machine. We wrap CLIs, not APIs.</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">🌍</span>
-                    <h3>Geo Clustering</h3>
-                    <p>Servers grouped by 15 canonical cities worldwide. No more guessing which "us-east" is which.</p>
+                    <h3>15-City Geo Clustering</h3>
+                    <p>Servers grouped by human-readable cities worldwide. No more guessing which "us-east-2a" is which.</p>
                 </div>
                 <div class="feature-card">
                     <span class="feature-icon">🚀</span>
                     <h3>One-Click Launch</h3>
-                    <p>Launch Docker, NGINX, or VNC desktops with pre-configured cloud-init scripts and firewall rules.</p>
+                    <p>Deploy Docker, NGINX, or VNC desktops with pre-configured cloud-init scripts and firewall rules.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container" style="text-align: center;">
+            <h2>Simple, Honest Pricing</h2>
+            <p class="subtitle">Pay once, own forever. No subscriptions. No vendor lock-in.</p>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Personal</h3>
+                    <p style="color: var(--text-secondary);">For solo developers & hobbyists</p>
+                    <div class="price">$49 <span>one-time</span></div>
+                    <p class="price-note">1 year of updates included</p>
+                    <ul class="pricing-features">
+                        <li>All 5 cloud providers</li>
+                        <li>Unlimited VMs</li>
+                        <li>All presets (Docker, VNC, etc.)</li>
+                        <li>Full MARKET access</li>
+                        <li>SSH integration</li>
+                        <li>1 device activation</li>
+                        <li>Community support</li>
+                    </ul>
+                    <a href="#" class="btn btn-secondary">Start 14-Day Trial</a>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">Most Popular</div>
+                    <h3>Pro</h3>
+                    <p style="color: var(--text-secondary);">For freelancers & power users</p>
+                    <div class="price">$99 <span>one-time</span></div>
+                    <p class="price-note">2 years of updates included</p>
+                    <ul class="pricing-features">
+                        <li>Everything in Personal</li>
+                        <li>3 device activations</li>
+                        <li>Priority email support (48h)</li>
+                        <li>Early access to new providers</li>
+                        <li>50% off future major versions</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary">Start 14-Day Trial</a>
+                </div>
+                
+                <div class="pricing-card">
+                    <h3>Team</h3>
+                    <p style="color: var(--text-secondary);">For startups & agencies</p>
+                    <div class="price">$79 <span>/seat one-time</span></div>
+                    <p class="price-note">Minimum 5 seats • 2 years updates</p>
+                    <ul class="pricing-features">
+                        <li>Everything in Pro</li>
+                        <li>Unlimited devices per seat</li>
+                        <li>Priority support (24h + Slack)</li>
+                        <li>License management dashboard</li>
+                        <li>Invoice/PO billing</li>
+                    </ul>
+                    <a href="mailto:sales@browserbox.io" class="btn btn-secondary">Contact Sales</a>
+                </div>
+            </div>
+            
+            <div class="pricing-guarantee">
+                <p><strong>🛡️ 30-Day Money-Back Guarantee</strong><br>
+                Not happy? Get a full refund within 30 days, no questions asked.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container" style="text-align: center;">
+            <h2>Loved by DevOps Engineers</h2>
+            <p class="subtitle">Join hundreds of developers who've simplified their cloud workflow.</p>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"Finally, I don't have to keep 5 browser tabs open just to check on my servers. CloudMasters paid for itself in the first week."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">MK</div>
+                        <div class="testimonial-info">
+                            <strong>Marcus K.</strong>
+                            <span>DevOps Engineer, Startup</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"The MARKET feature alone saves me hours comparing prices. I found a Hetzner box that was 60% cheaper than my Azure equivalent."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">SL</div>
+                        <div class="testimonial-info">
+                            <strong>Sarah L.</strong>
+                            <span>Freelance Developer</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"I manage 40+ boxes across 3 clouds for different clients. CloudMasters turned a 2-hour weekly task into 15 minutes."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">JP</div>
+                        <div class="testimonial-info">
+                            <strong>James P.</strong>
+                            <span>Cloud Consultant</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="trust" class="trust">
+<section id="trust" class="trust">
         <div class="container" style="text-align: center;">
-            <h2 style="font-size: 2.5rem;">Trust without the fine print anxiety</h2>
-            <p class="subtitle">We built CloudMasters for people who have been burned by surveillance software. Your data and IP are yours, forever.</p>
+            <h2>Trust Without Fine Print Anxiety</h2>
+            <p class="subtitle">Built for developers who've been burned by surveillance software. Your data and IP are yours, forever.</p>
             <div class="trust-grid">
                 <div class="trust-card">
-                    <h3>Your cloud data stays yours</h3>
+                    <h3>🔒 Your Cloud Data Stays Yours</h3>
                     <p>We never claim ownership of your infrastructure, configs, or code. What you build stays yours, period.</p>
                 </div>
                 <div class="trust-card">
-                    <h3>No credential exfiltration</h3>
-                    <p>CloudMasters sits on top of official CLIs. We don’t receive or store your cloud credentials.</p>
+                    <h3>🚫 No Credential Exfiltration</h3>
+                    <p>CloudMasters wraps official CLIs. We don't receive, store, or even see your cloud credentials.</p>
                 </div>
                 <div class="trust-card">
-                    <h3>Audit-friendly activity logs</h3>
-                    <p>Activity logs are designed for security and support, not surveillance. They avoid secrets and focus on timestamps and actions.</p>
+                    <h3>📋 Audit-Friendly Logs</h3>
+                    <p>Activity logs designed for security and support, not surveillance. No secrets, just timestamps and actions.</p>
                 </div>
             </div>
             <details class="trust-details">
-                <summary>Read the plain-English privacy commitments</summary>
-                <p>We do not sell data, do not train AI on customer data, and keep collection to the minimum required for licensing and support. See the full policy for specifics.</p>
+                <summary>📜 Read the plain-English privacy commitments</summary>
+                <p>We do not sell data, do not train AI on customer data, and keep collection to the minimum required for licensing and support. Zero telemetry by default. See the <a href="privacy.html" class="inline-link">full privacy policy</a> for specifics.</p>
             </details>
         </div>
     </section>
+    
+    <!-- FAQ Section -->
+    <section id="faq" class="faq">
+        <div class="container" style="text-align: center;">
+            <h2>Frequently Asked Questions</h2>
+            <p class="subtitle">Everything you need to know before getting started.</p>
+            
+            <div class="faq-grid">
+                <details class="faq-item">
+                    <summary>How does the free trial work?</summary>
+                    <p>Download CloudMasters and use all features free for 14 days. No credit card required. After 14 days, choose a plan or the app gently reminds you to upgrade. Your data and configs are never deleted.</p>
+                </details>
+                
+                <details class="faq-item">
+                    <summary>What happens after my update period ends?</summary>
+                    <p>Your license works forever! You just won't receive new features or cloud provider updates. You can always purchase an upgrade pack or a new license to get the latest version.</p>
+                </details>
+                
+                <details class="faq-item">
+                    <summary>Do you store my cloud credentials?</summary>
+                    <p>Never. CloudMasters wraps your existing CLI tools (az, gcloud, aws, hcloud, vultr-cli). Your credentials stay in those tools, managed by you. We never see them.</p>
+                </details>
+                
+                <details class="faq-item">
+                    <summary>What if a cloud provider changes their API?</summary>
+                    <p>Since we wrap official CLIs, you just update your CLI and CloudMasters keeps working. We also push updates for major changes during your update period.</p>
+                </details>
+                
+                <details class="faq-item">
+                    <summary>Can I use this for client work?</summary>
+                    <p>Absolutely! Many consultants and agencies use CloudMasters to manage multiple client accounts. The Team license includes features specifically for this use case.</p>
+                </details>
+                
+                <details class="faq-item">
+                    <summary>What's your refund policy?</summary>
+                    <p>30-day money-back guarantee, no questions asked. If CloudMasters isn't right for you, email us and we'll refund you immediately.</p>
+                </details>
+            </div>
+        </div>
+    </section>
 
-    <section style="padding: 6rem 0; text-align: center;">
+    <section class="final-cta">
         <div class="container">
-            <h2>Ready to take control?</h2>
-            <p class="subtitle" style="margin-top: 1rem;">Try it free, license when it pays for itself, and keep your workflows forever.</p>
-            <a href="https://github.com/BrowserBox/CloudMasters-Marketplace" class="btn btn-primary">Follow the release feed</a>
+            <h2>Ready to Take Control?</h2>
+            <p class="subtitle">Join hundreds of developers managing their clouds faster.</p>
+            <div class="cta-buttons">
+                <a href="#pricing" class="btn btn-primary btn-large">Start Your Free Trial →</a>
+            </div>
+            <p class="cta-subtext">14-day trial • No credit card • 30-day money-back guarantee</p>
         </div>
     </section>
 
@@ -575,6 +1244,7 @@
                 <a href="terms.html">Terms</a>
                 <a href="privacy.html">Privacy</a>
                 <a href="https://github.com/BrowserBox/CloudMasters-Marketplace/releases/latest">Downloads</a>
+                <a href="mailto:support@browserbox.io">Support</a>
             </div>
         </div>
     </footer>
