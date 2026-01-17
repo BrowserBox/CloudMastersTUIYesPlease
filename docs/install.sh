@@ -25,6 +25,12 @@ case "$os_name" in
   *) echo "Unsupported OS: $os_name" >&2; exit 1 ;;
 esac
 
+# On macOS the pkg installs /usr/local/bin/cloudmasters.
+# Avoid overwriting it with the launcher; default launcher install dir is ~/.cloudmasters/bin.
+if [[ "$os" == "macos" && -z "${CLOUDMASTERS_INSTALL_DIR:-}" ]]; then
+  INSTALL_DIR="$BINARY_DIR"
+fi
+
 case "$arch_name" in
   arm64|aarch64) arch="arm64" ;;
   x86_64|amd64) arch="amd64" ;;
@@ -35,6 +41,10 @@ esac
 if [[ "$os" == "macos" ]]; then
   asset="cloudmasters_darwin_${arch}.pkg"
 elif [[ "$os" == "linux" ]]; then
+  if [[ "$arch" != "amd64" ]]; then
+    echo "Linux build is currently only available for amd64/x86_64 (got: $arch)." >&2
+    exit 1
+  fi
   asset="cloudmasters_linux_amd64"
 else
   echo "Unsupported platform: $os $arch" >&2
@@ -43,6 +53,38 @@ fi
 
 # Create binary directory
 mkdir -p "$BINARY_DIR"
+
+# Pre-install cleanse: remove existing binaries/wrappers first (avoids code-signing corruption on overwrite)
+can_sudo() {
+  command -v sudo >/dev/null 2>&1 && [[ -t 0 ]]
+}
+
+safe_rm() {
+  local p="$1"
+  if [[ -e "$p" || -L "$p" ]]; then
+    if rm -f "$p" 2>/dev/null; then
+      return 0
+    fi
+    if can_sudo; then
+      sudo rm -f "$p" 2>/dev/null || true
+    fi
+  fi
+}
+
+# Clean common install locations
+safe_rm "$BINARY_DIR/cloudmasters"
+# If previous installs put a launcher into INSTALL_DIR, remove it too
+safe_rm "$INSTALL_DIR/cloudmasters"
+
+# macOS pkg installs the real binary here; only remove it if we will be able to reinstall now.
+if [[ "$os" == "macos" ]]; then
+  if [[ "$(id -u)" -eq 0 ]] || can_sudo; then
+    safe_rm "/usr/local/bin/cloudmasters"
+  else
+    # Non-interactive/headful path: don't remove the existing binary until user installs via UI.
+    true
+  fi
+fi
 
 # Build download URL
 if [[ "$RELEASE_TAG" == "latest" ]]; then
@@ -133,13 +175,29 @@ chmod +x "$TMP_FILE"
 # Move binary to binary directory
 binary_target="$BINARY_DIR/cloudmasters"
 if [[ "$os" == "macos" ]]; then
-  # For macOS pkg, we install it properly
-  echo "Running installer (requires sudo)..."
-  sudo installer -pkg "$TMP_FILE" -target /
-  # The pkg installs to /usr/local/bin/cloudmasters, so we symlink or just use it
-  if [[ -f "/usr/local/bin/cloudmasters" ]]; then
-    ln -sf "/usr/local/bin/cloudmasters" "$binary_target"
+  # macOS: the .pkg already installs the real binary to /usr/local/bin/cloudmasters.
+  # IMPORTANT: do NOT overwrite that path with the launcher wrapper (it will recurse).
+  echo "Running installer (requires admin)..."
+
+  if [[ "$(id -u)" -eq 0 ]]; then
+    installer -pkg "$TMP_FILE" -target /
+  elif command -v sudo >/dev/null 2>&1 && [[ -t 0 ]]; then
+    sudo installer -pkg "$TMP_FILE" -target /
+  else
+    echo "Can't run sudo installer non-interactively; opening the pkg installer UI..." >&2
+    open "$TMP_FILE"
+    echo "After install completes, run: /usr/local/bin/cloudmasters" >&2
+    exit 0
   fi
+
+  if [[ ! -x "/usr/local/bin/cloudmasters" ]]; then
+    echo "Install succeeded but /usr/local/bin/cloudmasters not found/executable." >&2
+    exit 1
+  fi
+
+  echo "cloudmasters installed to /usr/local/bin/cloudmasters"
+  echo "Run: cloudmasters"
+  exit 0
 else
   # Linux binary
   if [[ -f "$binary_target" ]]; then
@@ -176,6 +234,10 @@ if [[ "$os" == "macos" ]]; then
   asset="cloudmasters_darwin_${arch}.pkg"
   binary="/usr/local/bin/cloudmasters"
 else
+  if [[ "$arch" != "amd64" ]]; then
+    echo "Unsupported Linux architecture for auto-update: $arch (only amd64 supported)." >&2
+    exit 1
+  fi
   asset="cloudmasters_linux_amd64"
   binary="$BINARY_DIR/cloudmasters"
 fi
@@ -212,12 +274,32 @@ download_binary() {
   local tmp="$BINARY_DIR/download.tmp"
   
   mkdir -p "$BINARY_DIR"
+
+  # Cleanse first to avoid overwrite-related code signing corruption
+  rm -f "$tmp" 2>/dev/null || true
+  if [[ "$os" == "macos" ]]; then
+    # Only remove the system binary if we can reinstall now.
+    if [[ "$(id -u)" -eq 0 ]]; then
+      rm -f "/usr/local/bin/cloudmasters" 2>/dev/null || true
+    elif command -v sudo >/dev/null 2>&1 && [[ -t 0 ]]; then
+      sudo rm -f "/usr/local/bin/cloudmasters" 2>/dev/null || true
+    fi
+  else
+    rm -f "$binary" 2>/dev/null || true
+  fi
   
   echo "Updating CloudMasters to $version..." >&2
   if curl -fsSL "$url" -o "$tmp" 2>/dev/null; then
     if [[ "$os" == "macos" ]]; then
-      echo "Installing update (requires sudo)..." >&2
-      sudo installer -pkg "$tmp" -target /
+      if [[ "$(id -u)" -eq 0 ]]; then
+        installer -pkg "$tmp" -target /
+      elif command -v sudo >/dev/null 2>&1 && [[ -t 0 ]]; then
+        sudo installer -pkg "$tmp" -target /
+      else
+        echo "Cannot run sudo installer non-interactively; opening the pkg installer UI..." >&2
+        open "$tmp"
+        exit 0
+      fi
       rm -f "$tmp"
     else
       chmod +x "$tmp"
@@ -256,6 +338,11 @@ exec "$binary" "$@"
 '
 
 # Install launcher to PATH
+# macOS: never overwrite the pkg-installed binary in /usr/local/bin unless explicitly forced.
+if [[ "$os" == "macos" && "$INSTALL_DIR" == "/usr/local/bin" && -z "$FORCE_INSTALL" ]]; then
+  INSTALL_DIR="$BINARY_DIR"
+fi
+
 install_target="$INSTALL_DIR/cloudmasters"
 use_sudo=""
 
