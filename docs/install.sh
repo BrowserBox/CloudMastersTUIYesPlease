@@ -2,15 +2,13 @@
 set -euo pipefail
 
 # CloudMasters Installer
-# Downloads the binary to ~/.cloudmasters/bin and installs a launcher wrapper to PATH
-# The wrapper handles auto-updates on each run
+# Installs cloudmasters-cli binary and cloudmasters wrapper that handles auto-updates
+# Pattern: cloudmasters (wrapper) -> cloudmasters-cli (binary)
 
 GITHUB_REPO="${CLOUDMASTERS_REPO:-BrowserBox/CloudMasters-Marketplace}"
 GITHUB_TOKEN="${CLOUDMASTERS_GITHUB_TOKEN:-}"
 RELEASE_TAG="${CLOUDMASTERS_RELEASE_TAG:-latest}"
 INSTALL_DIR="${CLOUDMASTERS_INSTALL_DIR:-/usr/local/bin}"
-BINARY_DIR="${CLOUDMASTERS_BINARY_DIR:-$HOME/.cloudmasters/bin}"
-FORCE_INSTALL="${CLOUDMASTERS_INSTALL_FORCE:-}"
 
 os_name="$(uname -s | tr '[:upper:]' '[:lower:]')"
 arch_name="$(uname -m | tr '[:upper:]' '[:lower:]')"
@@ -24,12 +22,6 @@ case "$os_name" in
     ;;
   *) echo "Unsupported OS: $os_name" >&2; exit 1 ;;
 esac
-
-# On macOS the pkg installs /usr/local/bin/cloudmasters.
-# Avoid overwriting it with the launcher; default launcher install dir is ~/.cloudmasters/bin.
-if [[ "$os" == "macos" && -z "${CLOUDMASTERS_INSTALL_DIR:-}" ]]; then
-  INSTALL_DIR="$BINARY_DIR"
-fi
 
 case "$arch_name" in
   arm64|aarch64) arch="arm64" ;;
@@ -45,16 +37,12 @@ elif [[ "$os" == "linux" ]]; then
     echo "Linux build is currently only available for amd64/x86_64 (got: $arch)." >&2
     exit 1
   fi
-  asset="cloudmasters_linux_amd64"
+  asset="cloudmasters-cli_linux_amd64"
 else
   echo "Unsupported platform: $os $arch" >&2
   exit 1
 fi
 
-# Create binary directory
-mkdir -p "$BINARY_DIR"
-
-# Pre-install cleanse: remove existing binaries/wrappers first (avoids code-signing corruption on overwrite)
 can_sudo() {
   command -v sudo >/dev/null 2>&1 && [[ -t 0 ]]
 }
@@ -62,29 +50,13 @@ can_sudo() {
 safe_rm() {
   local p="$1"
   if [[ -e "$p" || -L "$p" ]]; then
-    if rm -f "$p" 2>/dev/null; then
-      return 0
-    fi
-    if can_sudo; then
-      sudo rm -f "$p" 2>/dev/null || true
-    fi
+    rm -f "$p" 2>/dev/null || { can_sudo && sudo rm -f "$p" 2>/dev/null; } || true
   fi
 }
 
-# Clean common install locations
-safe_rm "$BINARY_DIR/cloudmasters"
-# If previous installs put a launcher into INSTALL_DIR, remove it too
+# Clean old installs
 safe_rm "$INSTALL_DIR/cloudmasters"
-
-# macOS pkg installs the real binary here; only remove it if we will be able to reinstall now.
-if [[ "$os" == "macos" ]]; then
-  if [[ "$(id -u)" -eq 0 ]] || can_sudo; then
-    safe_rm "/usr/local/bin/cloudmasters"
-  else
-    # Non-interactive/headful path: don't remove the existing binary until user installs via UI.
-    true
-  fi
-fi
+safe_rm "$INSTALL_DIR/cloudmasters-cli"
 
 # Build download URL
 if [[ "$RELEASE_TAG" == "latest" ]]; then
@@ -114,7 +86,6 @@ TMP_FILE="$TMP_DIR/$asset"
 # Download with token if provided
 curl_opts=(-fsSL)
 if [[ -n "$GITHUB_TOKEN" ]]; then
-  # For private repos, use API to find asset URL
   release_json=""
   if [[ "$RELEASE_TAG" == "latest" ]]; then
     release_json=$(curl -fsSL -H "Authorization: token $GITHUB_TOKEN" \
@@ -122,22 +93,6 @@ if [[ -n "$GITHUB_TOKEN" ]]; then
   else
     release_json=$(curl -fsSL -H "Authorization: token $GITHUB_TOKEN" \
       "https://api.github.com/repos/${GITHUB_REPO}/releases/tags/${RELEASE_TAG}" 2>/dev/null || echo "")
-    
-    if [[ -z "$release_json" || "$release_json" == *'"message":'* ]]; then
-      all_releases=$(curl -fsSL -H "Authorization: token $GITHUB_TOKEN" \
-        "https://api.github.com/repos/${GITHUB_REPO}/releases?per_page=30" 2>/dev/null || echo "[]")
-      
-      if command -v jq >/dev/null 2>&1; then
-        release_id=$(echo "$all_releases" | jq -r ".[] | select(.tag_name == \"${RELEASE_TAG}\") | .id" | head -1)
-      else
-        release_id=$(echo "$all_releases" | grep -B20 "\"tag_name\":[ ]*\"${RELEASE_TAG}\"" | grep -o '"id":[ ]*[0-9]*' | head -1 | grep -o '[0-9]*')
-      fi
-      
-      if [[ -n "$release_id" ]]; then
-        release_json=$(curl -fsSL -H "Authorization: token $GITHUB_TOKEN" \
-          "https://api.github.com/repos/${GITHUB_REPO}/releases/${release_id}" 2>/dev/null || echo "")
-      fi
-    fi
   fi
   
   if [[ -z "$release_json" || "$release_json" == *'"message":'* ]]; then
@@ -157,63 +112,73 @@ if [[ -n "$GITHUB_TOKEN" ]]; then
   fi
   
   url="$asset_api_url"
-  curl_opts+=(-H "Authorization: token $GITHUB_TOKEN")
-  curl_opts+=(-H "Accept: application/octet-stream")
+  curl_opts+=(-H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/octet-stream")
 fi
 
 # Download
 (curl "${curl_opts[@]}" "$url" -o "$TMP_FILE" 2>/dev/null) &
 download_pid=$!
 spin $download_pid
-wait $download_pid || {
-  echo "Download failed." >&2
-  exit 1
-}
+wait $download_pid || { echo "Download failed." >&2; exit 1; }
 
-chmod +x "$TMP_FILE"
+# Determine if we need sudo for INSTALL_DIR
+use_sudo=""
+if [[ ! -w "$INSTALL_DIR" ]]; then
+  if can_sudo; then
+    use_sudo="sudo"
+  else
+    INSTALL_DIR="$HOME/.local/bin"
+    mkdir -p "$INSTALL_DIR"
+  fi
+fi
 
-# Move binary to binary directory
-binary_target="$BINARY_DIR/cloudmasters"
+# Install binary as cloudmasters-cli
 if [[ "$os" == "macos" ]]; then
-  # macOS: the .pkg already installs the real binary to /usr/local/bin/cloudmasters.
-  # IMPORTANT: do NOT overwrite that path with the launcher wrapper (it will recurse).
   echo "Running installer (requires admin)..."
-
+  
   if [[ "$(id -u)" -eq 0 ]]; then
     installer -pkg "$TMP_FILE" -target /
-  elif command -v sudo >/dev/null 2>&1 && [[ -t 0 ]]; then
+  elif can_sudo; then
     sudo installer -pkg "$TMP_FILE" -target /
   else
     echo "Can't run sudo installer non-interactively; opening the pkg installer UI..." >&2
     open "$TMP_FILE"
-    echo "After install completes, run: /usr/local/bin/cloudmasters" >&2
+    echo "After install completes, run: cloudmasters" >&2
     exit 0
   fi
-
-  if [[ ! -x "/usr/local/bin/cloudmasters" ]]; then
-    echo "Install succeeded but /usr/local/bin/cloudmasters not found/executable." >&2
+  
+  if [[ ! -x "/usr/local/bin/cloudmasters-cli" ]]; then
+    echo "Install failed: /usr/local/bin/cloudmasters-cli not found." >&2
     exit 1
   fi
-
-  echo "cloudmasters installed to /usr/local/bin/cloudmasters"
-  echo "Run: cloudmasters"
-  exit 0
+  INSTALL_DIR="/usr/local/bin"
 else
-  # Linux binary
-  if [[ -f "$binary_target" ]]; then
-    rm -f "$binary_target"
+  # Linux: install binary directly as cloudmasters-cli
+  chmod +x "$TMP_FILE"
+  if [[ -n "$use_sudo" ]]; then
+    $use_sudo mv "$TMP_FILE" "$INSTALL_DIR/cloudmasters-cli"
+  else
+    mv "$TMP_FILE" "$INSTALL_DIR/cloudmasters-cli"
   fi
-  mv "$TMP_FILE" "$binary_target"
 fi
 
 # Create launcher wrapper script
 launcher_script='#!/usr/bin/env bash
-# CloudMasters Launcher - auto-updates and runs the binary
+# CloudMasters Launcher - checks for updates and runs cloudmasters-cli
 
 GITHUB_REPO="BrowserBox/CloudMasters-Marketplace"
-BINARY_DIR="$HOME/.cloudmasters/bin"
 CACHE_FILE="$HOME/.cloudmasters/.version-cache"
 CACHE_TTL=10800  # 3 hours
+
+# Find the binary
+if [[ -x "/usr/local/bin/cloudmasters-cli" ]]; then
+  binary="/usr/local/bin/cloudmasters-cli"
+elif [[ -x "$HOME/.local/bin/cloudmasters-cli" ]]; then
+  binary="$HOME/.local/bin/cloudmasters-cli"
+else
+  echo "Error: cloudmasters-cli not found. Please reinstall." >&2
+  exit 1
+fi
 
 os_name="$(uname -s | tr '\''[:upper:]'\'' '\''[:lower:]'\'')"
 arch_name="$(uname -m | tr '\''[:upper:]'\'' '\''[:lower:]'\'')"
@@ -232,24 +197,15 @@ esac
 
 if [[ "$os" == "macos" ]]; then
   asset="cloudmasters_darwin_${arch}.pkg"
-  binary="/usr/local/bin/cloudmasters"
 else
-  if [[ "$arch" != "amd64" ]]; then
-    echo "Unsupported Linux architecture for auto-update: $arch (only amd64 supported)." >&2
-    exit 1
-  fi
-  asset="cloudmasters_linux_amd64"
-  binary="$BINARY_DIR/cloudmasters"
+  asset="cloudmasters-cli_linux_amd64"
 fi
 
 get_current_version() {
-  if [[ -x "$binary" ]]; then
-    "$binary" --version 2>/dev/null | grep -oE '\''v?[0-9]+\.[0-9]+\.[0-9]+'\'' | head -1 || echo ""
-  fi
+  "$binary" --version 2>/dev/null | grep -oE '\''v?[0-9]+\.[0-9]+\.[0-9]+'\'' | head -1 || echo ""
 }
 
 get_latest_version() {
-  # Check cache first
   if [[ -f "$CACHE_FILE" ]]; then
     cache_age=$(($(date +%s) - $(stat -f%m "$CACHE_FILE" 2>/dev/null || stat -c%Y "$CACHE_FILE" 2>/dev/null || echo 0)))
     if [[ $cache_age -lt $CACHE_TTL ]]; then
@@ -258,7 +214,6 @@ get_latest_version() {
     fi
   fi
   
-  # Fetch from GitHub API
   latest=$(curl -fsSL --max-time 5 "https://api.github.com/repos/$GITHUB_REPO/releases/latest" 2>/dev/null | grep -o '\''"tag_name":[ ]*"[^"]*"'\'' | head -1 | grep -o '\''v[0-9.]*'\'')
   
   if [[ -n "$latest" ]]; then
@@ -268,112 +223,72 @@ get_latest_version() {
   fi
 }
 
-download_binary() {
+do_update() {
   local version="$1"
   local url="https://github.com/$GITHUB_REPO/releases/download/$version/$asset"
-  local tmp="$BINARY_DIR/download.tmp"
-  
-  mkdir -p "$BINARY_DIR"
-
-  # Cleanse first to avoid overwrite-related code signing corruption
-  rm -f "$tmp" 2>/dev/null || true
-  if [[ "$os" == "macos" ]]; then
-    # Only remove the system binary if we can reinstall now.
-    if [[ "$(id -u)" -eq 0 ]]; then
-      rm -f "/usr/local/bin/cloudmasters" 2>/dev/null || true
-    elif command -v sudo >/dev/null 2>&1 && [[ -t 0 ]]; then
-      sudo rm -f "/usr/local/bin/cloudmasters" 2>/dev/null || true
-    fi
-  else
-    rm -f "$binary" 2>/dev/null || true
-  fi
+  local tmp_dir
+  tmp_dir="$(mktemp -d)"
+  local tmp_file="$tmp_dir/$asset"
   
   echo "Updating CloudMasters to $version..." >&2
-  if curl -fsSL "$url" -o "$tmp" 2>/dev/null; then
-    if [[ "$os" == "macos" ]]; then
-      if [[ "$(id -u)" -eq 0 ]]; then
-        installer -pkg "$tmp" -target /
-      elif command -v sudo >/dev/null 2>&1 && [[ -t 0 ]]; then
-        sudo installer -pkg "$tmp" -target /
-      else
-        echo "Cannot run sudo installer non-interactively; opening the pkg installer UI..." >&2
-        open "$tmp"
-        exit 0
-      fi
-      rm -f "$tmp"
+  if ! curl -fsSL "$url" -o "$tmp_file" 2>/dev/null; then
+    rm -rf "$tmp_dir"
+    echo "Update failed, using existing version." >&2
+    return 1
+  fi
+  
+  if [[ "$os" == "macos" ]]; then
+    if [[ "$(id -u)" -eq 0 ]]; then
+      rm -f /usr/local/bin/cloudmasters-cli
+      installer -pkg "$tmp_file" -target /
+    elif command -v sudo >/dev/null 2>&1 && [[ -t 0 ]]; then
+      sudo rm -f /usr/local/bin/cloudmasters-cli
+      sudo installer -pkg "$tmp_file" -target /
     else
-      chmod +x "$tmp"
-      mv "$tmp" "$binary"
+      echo "Cannot update non-interactively (no sudo). Run manually to update." >&2
+      rm -rf "$tmp_dir"
+      return 1
     fi
   else
-    rm -f "$tmp"
-    echo "Update failed, using existing version." >&2
+    chmod +x "$tmp_file"
+    local bin_dir
+    bin_dir="$(dirname "$binary")"
+    if [[ -w "$bin_dir" ]]; then
+      mv "$tmp_file" "$binary"
+    elif command -v sudo >/dev/null 2>&1 && [[ -t 0 ]]; then
+      sudo mv "$tmp_file" "$binary"
+    else
+      echo "Cannot update: no write permission. Run with sudo to update." >&2
+      rm -rf "$tmp_dir"
+      return 1
+    fi
   fi
+  
+  rm -rf "$tmp_dir"
+  echo "Updated to $version" >&2
 }
 
-# Check for updates (background-friendly)
+# Check for updates
 current=$(get_current_version)
 current_normalized="${current#v}"
+latest=$(get_latest_version)
+latest_normalized="${latest#v}"
 
-if [[ -z "$current" ]]; then
-  # No binary, must download
-  latest=$(get_latest_version)
-  if [[ -z "$latest" ]]; then
-    echo "Error: Could not determine latest version and no binary installed." >&2
-    exit 1
-  fi
-  download_binary "$latest"
-else
-  # Check for update (non-blocking - only if cache expired)
-  latest=$(get_latest_version)
-  latest_normalized="${latest#v}"
-  
-  if [[ -n "$latest" && "$latest_normalized" != "$current_normalized" ]]; then
-    download_binary "$latest"
-  fi
+if [[ -n "$latest" && -n "$current" && "$latest_normalized" != "$current_normalized" ]]; then
+  do_update "$latest" || true
 fi
 
-# Run binary
 exec "$binary" "$@"
 '
 
-# Install launcher to PATH
-# macOS: never overwrite the pkg-installed binary in /usr/local/bin unless explicitly forced.
-if [[ "$os" == "macos" && "$INSTALL_DIR" == "/usr/local/bin" && -z "$FORCE_INSTALL" ]]; then
-  INSTALL_DIR="$BINARY_DIR"
-fi
-
-install_target="$INSTALL_DIR/cloudmasters"
-use_sudo=""
-
-if [[ ! -d "$INSTALL_DIR" ]]; then
-  mkdir -p "$INSTALL_DIR" 2>/dev/null || true
-fi
-
-if [[ ! -w "$INSTALL_DIR" ]]; then
-  if command -v sudo >/dev/null 2>&1; then
-    use_sudo="sudo"
-  else
-    INSTALL_DIR="$HOME/.local/bin"
-    install_target="$INSTALL_DIR/cloudmasters"
-    mkdir -p "$INSTALL_DIR"
-  fi
-fi
-
-if [[ -f "$install_target" ]]; then
-  if [[ -n "$use_sudo" ]]; then
-    $use_sudo rm -f "$install_target"
-  else
-    rm -f "$install_target"
-  fi
-fi
-
+# Install wrapper as cloudmasters
+wrapper_target="$INSTALL_DIR/cloudmasters"
 if [[ -n "$use_sudo" ]]; then
-  echo "$launcher_script" | $use_sudo tee "$install_target" > /dev/null
-  $use_sudo chmod +x "$install_target"
+  echo "$launcher_script" | $use_sudo tee "$wrapper_target" > /dev/null
+  $use_sudo chmod +x "$wrapper_target"
 else
-  echo "$launcher_script" > "$install_target"
-  chmod +x "$install_target"
+  echo "$launcher_script" > "$wrapper_target"
+  chmod +x "$wrapper_target"
 fi
 
 # Check PATH
@@ -382,11 +297,13 @@ case ":$PATH:" in
   *":$INSTALL_DIR:"*) path_ok=true ;;
 esac
 
-if [[ "$path_ok" == "true" ]]; then
-  echo "cloudmasters installed to $INSTALL_DIR"
-else
-  echo "cloudmasters installed."
-  echo ""
+echo ""
+echo "Installed:"
+echo "  Binary:  $INSTALL_DIR/cloudmasters-cli"
+echo "  Wrapper: $INSTALL_DIR/cloudmasters (auto-updates)"
+echo ""
+
+if [[ "$path_ok" != "true" ]]; then
   shell_name=$(basename "$SHELL")
   case "$shell_name" in
     zsh)
@@ -403,17 +320,7 @@ else
       echo "Add to PATH: export PATH=\"$INSTALL_DIR:\$PATH\""
       ;;
   esac
+  echo ""
 fi
 
-echo ""
-if [[ "$os" == "macos" ]]; then
-  echo "Binary: /usr/local/bin/cloudmasters"
-else
-  echo "Binary: $binary_target"
-fi
-echo "Launcher: $install_target (auto-updates on run)"
-echo ""
 echo "Run: cloudmasters"
-
-echo ""
-echo "Tip: Run 'cloudmasters' to launch the TUI."
