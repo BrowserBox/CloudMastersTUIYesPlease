@@ -1,7 +1,7 @@
 # BlueDot
 
 <p align="center">
-  <img src="logo.png" alt="BlueDot Logo" width="220">
+  <img width="250" alt="BlueDot Logo on BlueDot TUI Splash Screen" src="https://github.com/user-attachments/assets/6a8b0d7e-b538-4f7b-8f22-7904727969ff" />    
   <br>
   <b>Universal Cloud Console</b>
   <br>
@@ -11,6 +11,7 @@
 <p align="center">
   <a href="https://github.com/BrowserBox/BlueDot-CLI/releases/latest">
     <img src="https://img.shields.io/github/v/release/BrowserBox/BlueDot-CLI?style=for-the-badge&color=blue" alt="Latest Release">
+    
   </a>
   <a href="#download"><img src="https://img.shields.io/badge/macOS-PKG_Installer-white?logo=apple&style=for-the-badge" alt="macOS"></a>
   <a href="#download"><img src="https://img.shields.io/badge/Linux-Binary-white?logo=linux&style=for-the-badge" alt="Linux"></a>
