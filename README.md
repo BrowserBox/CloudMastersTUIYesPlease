@@ -26,7 +26,7 @@
 
 **We unify the cloud market.** Instead of navigating complex, slow web portals, BlueDot lets you **search 58,000+ offers** globally, find the cheapest compute (like a $0.001/hr instance in Mumbai), and provision it instantly—all from your keyboard.
 
-**Supported Providers:** AWS, Azure, GCP, Hetzner, and Vultr.
+**Supported Providers:** AWS, Azure, DigitalOcean, GCP, Hetzner, and Vultr.
 
 ---
 
@@ -72,6 +72,7 @@ We are a "Shopping" tool, not a full "Infrastructure-as-Code" replacement. We ar
 You must have the respective provider CLIs installed and authenticated on your machine to use them with BlueDot:
 *   `aws` (AWS CLI)
 *   `az` (Azure CLI)
+*   `doctl` (DigitalOcean CLI)
 *   `gcloud` (Google Cloud SDK)
 *   `hcloud` (Hetzner CLI)
 *   `vultr-cli` (Vultr CLI)
@@ -82,36 +83,15 @@ You must have the respective provider CLIs installed and authenticated on your m
 
 ## 📥 Installation
 
-### Latest Version: **v2.1.2**
+### Easiest
 
-### macOS (Recommended)
-
-Download the `.pkg` installer for your architecture. This installs the binary to `/usr/local/bin/bluedot`.
-
-*   [**Download for Apple Silicon (M1/M2/M3)**](https://github.com/BrowserBox/BlueDot-CLI/releases/download/v2.1.2/bluedot_darwin_arm64.pkg)
-*   [**Download for Intel Macs**](https://github.com/BrowserBox/BlueDot-CLI/releases/download/v2.1.2/bluedot_darwin_amd64.pkg)
-
-**Pro Tip:** Add an alias to your `.zshrc` or `.bashrc`:
-```bash
-alias hm="bluedot"
+```console
+curl -fsSL tui.bluedot.ink/install.sh | bash
 ```
 
-### Linux & Windows
+### Direct binary downloads
 
-Download the standalone binary for your architecture.
-
-*   [**Download for Linux (amd64)**](https://github.com/BrowserBox/BlueDot-CLI/releases/download/v2.1.2/bluedot_linux_amd64)
-*   [**Download for Windows (amd64 .exe)**](https://github.com/BrowserBox/BlueDot-CLI/releases/download/v2.1.2/bluedot_windows_amd64.exe)
-
-**Linux Installation Example:**
-```bash
-# Download
-wget https://github.com/BrowserBox/BlueDot-CLI/releases/download/v2.1.2/bluedot_linux_amd64
-
-# Move to path
-chmod +x bluedot_linux_amd64
-sudo mv bluedot_linux_amd64 /usr/local/bin/bluedot
-```
+See [releases](https://github.com/BrowserBox/BlueDot-CLI/releases/latest)
 
 ---
 
